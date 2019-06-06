@@ -1,26 +1,39 @@
 import React from 'react';
-import logo from './logo.svg';
+import { connect } from 'react-redux';
+import { fetchQuestion } from './actions/question';
+import { QuestionScreen, ResultScreen } from './components';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  state = {
+    showingQuestionScreen: true
+  }
+  componentWillMount() {
+    this.props.fetchQuestion();
+  }
+  onQuizSubmit = () => {
+    this.setState({ showingQuestionScreen: false });
+  }
+  playAgain = () => {
+    this.setState({ showingQuestionScreen: true }, () => this.props.fetchQuestion());
+  }
+  render() {
+    const { showingQuestionScreen } = this.state;
+    return (
+      <div className="container">
+        <div className="row header" style={{ justifyContent: 'center' }}>
+          <span style={{ fontFamily: 'Roboto', fontStyle: 'italic' }}>General Sports Quiz</span>
+        </div>
+        {showingQuestionScreen && <QuestionScreen revealAnswerMode={false} onQuizSubmit={() => this.onQuizSubmit()} />}
+        {!showingQuestionScreen && <ResultScreen playAgain={() => this.playAgain()} />}
+      </div>
+    );
+  }
 }
 
-export default App;
+const mapDispatchToProps = dispatch => ({
+  fetchQuestion: () => dispatch(fetchQuestion())
+});
+
+
+export default connect(null, mapDispatchToProps)(App);
